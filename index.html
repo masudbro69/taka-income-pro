@@ -5,14 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Taka Income Pro</title>
   <link rel="stylesheet" href="style.css" />
-  
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
 
-  <!-- Adsterra Popunder -->
-  <script type='text/javascript' src='//pl23138545.profitablegatecpm.com/14/7e/15/147e158f0d2c1c7df48d0b56c5f8c356.js'></script>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
 </head>
 <body>
   <div class="container">
@@ -23,47 +21,56 @@
       <button onclick="location.href='quiz.html'">কুইজ</button>
       <button onclick="location.href='spin.html'">স্পিন</button>
       <button onclick="location.href='ads.html'">অ্যাড দেখুন</button>
-      <button onclick="location.href='admin.html'">অ্যাডমিন প্যানেল</button>
+      <button onclick="location.href='daily.html'">ডেইলি বোনাস</button>
+      <button onclick="location.href='withdraw.html'">উইথড্র</button>
+      <button id="admin-btn" style="display:none;" onclick="location.href='admin.html'">অ্যাডমিন</button>
     </div>
 
-    <audio id="coin-sound" src="assets/coin.mp3" preload="auto"></audio>
+    <audio id="click-sound" src="assets/click.mp3" preload="auto"></audio>
   </div>
 
+  <!-- Adsterra Popunder Script -->
+  <script type='text/javascript' src='//pl23138545.profitablegatecpm.com/94/5c/cf/945ccfc86a3bb72081a0ae821a688aa6.js'></script>
+
+  <!-- Firebase Config + Logic -->
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyC...REPLACE_WITH_YOURS",
+      apiKey: "AIzaSyAOlGcQIMpp_ItYWRmAA0jFZKNKM1eNgOY",
       authDomain: "taka-income-pro.firebaseapp.com",
       projectId: "taka-income-pro",
       storageBucket: "taka-income-pro.appspot.com",
-      messagingSenderId: "1234567890",
-      appId: "1:1234567890:web:abcd1234"
+      messagingSenderId: "213383940361",
+      appId: "1:213383940361:web:cf958d4b17654d42cfd2d8"
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    const coinDisplay = document.querySelector("#coin-display span");
-    const sound = document.getElementById("coin-sound");
 
-    auth.onAuthStateChanged(user => {
+    const coinSpan = document.querySelector("#coin-display span");
+    const sound = document.getElementById("click-sound");
+    const adminBtn = document.getElementById("admin-btn");
+
+    auth.onAuthStateChanged(async (user) => {
       if (user) {
         const uid = user.uid;
-        const userDoc = db.collection("users").doc(uid);
+        const userRef = db.collection("users").doc(uid);
 
-        userDoc.get().then(doc => {
-          if (doc.exists) {
-            coinDisplay.textContent = doc.data().coins || 0;
-          } else {
-            userDoc.set({ coins: 0 });
-          }
-        });
+        // Show admin panel if UID matches
+        if (uid === "3JZVxDCSzdZd6IlaUeL8xOCgZjf1") {
+          adminBtn.style.display = "block";
+        }
 
-        userDoc.onSnapshot(doc => {
-          if (doc.exists) {
-            const coins = doc.data().coins || 0;
-            coinDisplay.textContent = coins;
-            sound.play();
-          }
+        // Create user if not exists
+        const doc = await userRef.get();
+        if (!doc.exists) {
+          await userRef.set({ coins: 0 });
+        }
+
+        // Real-time coin update
+        userRef.onSnapshot((doc) => {
+          const coins = doc.data().coins || 0;
+          coinSpan.innerText = coins;
+          sound.play();
         });
       } else {
         auth.signInAnonymously();
