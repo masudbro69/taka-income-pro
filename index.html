@@ -1,35 +1,50 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Taka Income Pro</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
-  <h1>স্বাগতম Taka Income Pro তে!</h1>
-  <div id="user-section">
-    <p id="user-coins">আপনার কয়েন: <span id="coin-count">0</span></p>
-    <button onclick="earnCoins()">কয়েন আয় করুন</button>
+  <div class="container">
+    <h1>স্বাগতম Taka Income Pro</h1>
+    <p id="coin-display">আপনার কয়েন: <span id="coin">0</span></p>
+
+    <div class="nav-buttons">
+      <button onclick="location.href='quiz.html'">কুইজ</button>
+      <button onclick="location.href='spin.html'">স্পিন</button>
+      <button onclick="location.href='bonus.html'">ডেইলি বোনাস</button>
+      <button onclick="location.href='withdraw.html'">উইথড্র</button>
+    </div>
+
+    <!-- Adsterra Social Bar -->
+    <script type="text/javascript">
+      atOptions = {
+        'key' : 'YOUR_ADSTERRA_SOCIALBAR_KEY',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+      document.write('<scr' + 'ipt type="text/javascript" src="//www.profitabledisplaynetwork.com/' + atOptions.key + '/invoke.js"></scr' + 'ipt>');
+    </script>
+
+    <audio id="click-sound" src="click.mp3" preload="auto"></audio>
   </div>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="firebase-config.js"></script>
-  <script src="app.js"></script>
-<div id="quiz-section">
-  <h2>কুইজ</h2>
-  <p id="quiz-question"></p>
-  <div id="quiz-options"></div>
-  <button onclick="loadQuiz()">নতুন প্রশ্ন</button>
-</div>
-<div id="spin-section">
-  <h2>স্পিন</h2>
-  <div id="wheel" style="width: 200px; height: 200px; border: 5px solid #333; border-radius: 50%; margin: auto; background: conic-gradient(#4caf50 0deg 60deg, #f44336 60deg 120deg, #2196f3 120deg 180deg, #ff9800 180deg 240deg, #9c27b0 240deg 300deg, #00bcd4 300deg 360deg);">
-  </div>
-  <button onclick="spinWheel()">স্পিন করুন</button>
-  <p id="spin-result"></p>
-</div>
+  <script src="firebase.js"></script>
+  <script>
+    // Sound on click
+    document.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('click-sound').play();
+      });
+    });
+  </script>
 </body>
 </html>
