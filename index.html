@@ -1,34 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Taka Income Pro</title>
 </head>
 <body>
-  <!-- Page Title -->
   <h1>Welcome to Taka Income Pro</h1>
+  <p>Coins: <span id="coin-span">0</span></p>
+  <audio id="coin-sound" src="coin.mp3" preload="auto"></audio>
 
-  <!-- Coin Display -->
-  <p>Coins: <span id="coinSpan">0</span></p>
-
-  <!-- Sound effect when coin updates -->
-  <audio id="coinSound" src="coin.mp3" preload="auto"></audio>
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
   <script>
-    // === Firebase Configuration (Replace with your own later) ===
     const firebaseConfig = {
-      apiKey: "AIzaSyDw8b4YO-YkY-JJq3MZssVzIiv-Y1wVwXQ",
-      authDomain: "taka-income-demo.firebaseapp.com",
-      projectId: "taka-income-demo",
-      storageBucket: "taka-income-demo.appspot.com",
-      messagingSenderId: "1234567890",
-      appId: "1:1234567890:web:abcd1234efgh5678"
-    };
+  apiKey: "AIzaSyA8L...bXY",  // real API key
+  authDomain: "taka-income-pro-51e3c.firebaseapp.com",
+  projectId: "taka-income-pro-51e3c",
+  storageBucket: "taka-income-pro-51e3c.appspot.com",
+  messagingSenderId: "123456789012",
+  appId: "1:123456789012:web:abcdef123456"
+};
 
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
@@ -38,8 +33,8 @@
     const db = firebase.firestore();
 
     // DOM Elements
-    const coinSpan = document.getElementById("coinSpan");
-    const sound = document.getElementById("coinSound");
+    const coinSpan = document.getElementById("coin-span");
+    const sound = document.getElementById("coin-sound");
 
     // Auth State Observer
     auth.onAuthStateChanged(async user => {
@@ -53,12 +48,11 @@
         }
 
         // Realtime listener for coin updates
-        userRef.onSnapshot((doc) => {
+        userRef.onSnapshot(doc => {
           const coins = doc.data().coins;
           coinSpan.innerText = coins;
-          sound.play(); // Play sound on update
+          sound.play(); // Play sound on coin update
         });
-
       } else {
         // Anonymous Sign In
         auth.signInAnonymously();
@@ -67,6 +61,6 @@
   </script>
 
   <!-- Adsterra Social Bar Ad -->
-  <script type="text/javascript" src="//pl26430918.profitableratecpm.com/eb/fc/e4/ebfce4c207953537986201bbf50217d3.js"></script>
+  <script type="text/javascript" src="//pl23165974.profitablegatecpm.com/92/f0/8e/92f08e02cc73630dd60107d79a5212cd.js"></script>
 </body>
 </html>
