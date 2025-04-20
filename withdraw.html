@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>Withdraw - Taka Income Pro</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Withdraw Request</h2>
+    <p>আপনার কয়েন: <span id="coinCount">লোড হচ্ছে...</span></p>
+    <input type="text" id="method" placeholder="Bkash/Nagad/Rocket">
+    <input type="text" id="number" placeholder="Account Number">
+    <button onclick="requestWithdraw()">Request Withdraw</button>
+    <p id="status"></p>
+  </div>
+
+  <script type="module" src="withdraw.js"></script>
+</body>
+</html>
