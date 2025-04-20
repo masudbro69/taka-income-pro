@@ -1,0 +1,78 @@
+<script>
+  let quizData = [
+    {
+      question: "বাংলাদেশের রাজধানী কোথায়?",
+      options: ["ঢাকা", "চট্টগ্রাম", "রাজশাহী", "খুলনা"],
+      answer: "ঢাকা"
+    },
+    {
+      question: "পৃথিবীর সবচেয়ে বড় মহাসাগর কোনটি?",
+      options: ["আটলান্টিক", "প্রশান্ত", "ভারত", "আর্কটিক"],
+      answer: "প্রশান্ত"
+    },
+    {
+      question: "মানবদেহে কতটি হাড় আছে?",
+      options: ["২০৬", "২০৮", "২১০", "২১২"],
+      answer: "২০৬"
+    }
+  ];
+
+  let currentQuestion = 0;
+  let userCoins = 0;
+
+  function loadQuestion() {
+    const q = quizData[currentQuestion];
+    document.getElementById("question-text").innerText = q.question;
+
+    const optionsDiv = document.getElementById("options-container");
+    optionsDiv.innerHTML = "";
+
+    q.options.forEach(option => {
+      const div = document.createElement("div");
+      div.className = "option";
+      div.innerText = option;
+      div.onclick = () => checkAnswer(option);
+      optionsDiv.appendChild(div);
+    });
+  }
+
+  function checkAnswer(selected) {
+    const correct = quizData[currentQuestion].answer;
+    if (selected === correct) {
+      userCoins += 2; // Earn 2 coins
+      updateCoinsInFirebase(2);
+      alert("সঠিক উত্তর! আপনি ২ কয়েন পেয়েছেন।");
+    } else {
+      alert("ভুল উত্তর!");
+    }
+
+    currentQuestion++;
+    if (currentQuestion < quizData.length) {
+      loadQuestion();
+    } else {
+      document.getElementById("quiz-container").innerHTML = "<p>Quiz শেষ। ধন্যবাদ!</p>";
+    }
+  }
+
+  function updateCoinsInFirebase(amount) {
+    db.collection("users").doc(userId).get().then(doc => {
+      let currentCoins = doc.exists && doc.data().coins ? doc.data().coins : 0;
+      let newTotal = currentCoins + amount;
+
+      db.collection("users").doc(userId).set({ coins: newTotal })
+        .then(() => {
+          document.getElementById("coin-count").innerText = newTotal;
+        });
+    });
+  }
+
+  // Load user's coin count on page load
+  window.onload = () => {
+    db.collection("users").doc(userId).get().then(doc => {
+      let currentCoins = doc.exists && doc.data().coins ? doc.data().coins : 0;
+      userCoins = currentCoins;
+      document.getElementById("coin-count").innerText = currentCoins;
+      loadQuestion();
+    });
+  };
+</script>
