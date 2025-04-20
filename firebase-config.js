@@ -1,12 +1,19 @@
-// Your Firebase configuration
+// Firebase configuration
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
 const firebaseConfig = {
-  apiKey: "AIzaSyDF1UgHvIhWZhjeznq5d3nQRPxKYltZHg8",
+  apiKey: "AIzaSyCqjGx0X5sAFaD5vTrmuEkOX_aNNfHBEBo",
   authDomain: "taka-income-pro.firebaseapp.com",
   projectId: "taka-income-pro",
   storageBucket: "taka-income-pro.appspot.com",
-  messagingSenderId: "278259025169",
-  appId: "1:278259025169:web:a7c43070194c80465ff0cd"
+  messagingSenderId: "94213173931",
+  appId: "1:94213173931:web:8583e617f2b14d2e2e4ac0"
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+export { auth, db };
