@@ -1,59 +1,127 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>কুইজ - Taka Income Pro</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      background-color: #f5f5f5;
-    }
-    .question-box {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      margin-bottom: 20px;
-    }
-    .option {
-      padding: 10px;
-      background: #eee;
-      margin: 5px 0;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .option:hover {
-      background: #dcdcdc;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz - Taka Income Pro</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-
-  <h2>আজকের কুইজ</h2>
-  <div id="quiz-container" class="question-box">
-    <p id="question-text">লোড হচ্ছে...</p>
-    <div id="options-container"></div>
+  <div class="container">
+    <h2>আজকের কুইজ</h2>
+    <div id="quiz-box">
+      <p id="question"></p>
+      <div id="options"></div>
+      <button id="next-btn" disabled>পরবর্তী প্রশ্ন</button>
+      <p id="result"></p>
+    </div>
+    <audio id="correct-sound" src="assets/correct.mp3" preload="auto"></audio>
   </div>
-  <p>আপনার কয়েন: <span id="coin-count">0</span></p>
 
   <script>
-    // Firebase config
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "SENDER_ID",
-      appId: "APP_ID"
+      apiKey: "AIzaSyAOlGcQIMpp_ItYWRmAA0jFZKNKM1eNgOY",
+      authDomain: "taka-income-pro.firebaseapp.com",
+      projectId: "taka-income-pro",
+      storageBucket: "taka-income-pro.appspot.com",
+      messagingSenderId: "213383940361",
+      appId: "1:213383940361:web:cf958d4b17654d42cfd2d8"
     };
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.firestore();
-    const userId = "demo-user"; // Update with real auth later
+
+    const questions = [
+      {
+        question: "বাংলাদেশের রাজধানী কোথায়?",
+        options: ["চট্টগ্রাম", "ঢাকা", "খুলনা", "রাজশাহী"],
+        answer: "ঢাকা"
+      },
+      {
+        question: "স্বাধীনতা দিবস কবে?",
+        options: ["২৬ মার্চ", "২১ ফেব্রুয়ারি", "১৬ ডিসেম্বর", "১ জানুয়ারি"],
+        answer: "২৬ মার্চ"
+      },
+      {
+        question: "বাংলাদেশের জাতীয় ফুল কী?",
+        options: ["গোলাপ", "শাপলা", "সুর্যমুখী", "জুঁই"],
+        answer: "শাপলা"
+      }
+    ];
+
+    let current = 0;
+    let coins = 0;
+    let currentUID = null;
+
+    const qEl = document.getElementById("question");
+    const optEl = document.getElementById("options");
+    const resEl = document.getElementById("result");
+    const nextBtn = document.getElementById("next-btn");
+    const sound = document.getElementById("correct-sound");
+
+    function showQuestion() {
+      const q = questions[current];
+      qEl.textContent = q.question;
+      optEl.innerHTML = "";
+      nextBtn.disabled = true;
+      resEl.textContent = "";
+
+      q.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(opt);
+        optEl.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected) {
+      const correct = questions[current].answer;
+      if (selected === correct) {
+        resEl.textContent = "সঠিক উত্তর! +10 কয়েন";
+        coins += 10;
+        sound.play();
+        nextBtn.disabled = false;
+      } else {
+        resEl.textContent = "ভুল উত্তর!";
+        nextBtn.disabled = false;
+      }
+    }
+
+    nextBtn.onclick = () => {
+      current++;
+      if (current < questions.length) {
+        showQuestion();
+      } else {
+        saveCoins();
+        qEl.textContent = "ধন্যবাদ! আপনি সব প্রশ্নের উত্তর দিয়েছেন।";
+        optEl.innerHTML = "";
+        nextBtn.style.display = "none";
+      }
+    };
+
+    function saveCoins() {
+      if (currentUID) {
+        const userRef = db.collection("users").doc(currentUID);
+        userRef.get().then(doc => {
+          const previous = doc.data().coins || 0;
+          userRef.update({ coins: previous + coins });
+        });
+      }
+    }
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUID = user.uid;
+        showQuestion();
+      } else {
+        auth.signInAnonymously();
+      }
+    });
   </script>
 </body>
 </html>
