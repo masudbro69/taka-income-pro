@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spin & Win - Taka Income Pro</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>স্পিন করুন আর কয়েন জিতুন!</h2>
+    <p>আজকের বাকি স্পিন: <span id="spin-left">0</span></p>
+    <button id="spin-btn">স্পিন করুন</button>
+    <p id="reward-msg"></p>
+
+    <div id="ads-area">
+      <!-- Ads Placeholder -->
+      <script type='text/javascript' src='//pl23138545.profitablegatecpm.com/945ccfc86a3bb72081a0ae821a688aa6.js'></script>
+    </div>
+
+    <audio id="spin-sound" src="assets/spin.mp3" preload="auto"></audio>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOlGcQIMpp_ItYWRmAA0jFZKNKM1eNgOY",
+      authDomain: "taka-income-pro.firebaseapp.com",
+      projectId: "taka-income-pro",
+      storageBucket: "taka-income-pro.appspot.com",
+      messagingSenderId: "213383940361",
+      appId: "1:213383940361:web:cf958d4b17654d42cfd2d8"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const btn = document.getElementById("spin-btn");
+    const msg = document.getElementById("reward-msg");
+    const spinSound = document.getElementById("spin-sound");
+    const spinLeft = document.getElementById("spin-left");
+
+    const MAX_SPINS = 5;
+    let uid = null;
+
+    function getToday() {
+      const today = new Date();
+      return today.toISOString().split("T")[0];
+    }
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        uid = user.uid;
+        const userRef = db.collection("users").doc(uid);
+        const today = getToday();
+
+        userRef.get().then(doc => {
+          if (!doc.exists) {
+            userRef.set({ coins: 0, lastSpinDate: today, spinsToday: 0 });
+            spinLeft.innerText = MAX_SPINS;
+          } else {
+            const data = doc.data();
+            if (data.lastSpinDate !== today) {
+              userRef.update({ lastSpinDate: today, spinsToday: 0 });
+              spinLeft.innerText = MAX_SPINS;
+            } else {
+              spinLeft.innerText = MAX_SPINS - (data.spinsToday || 0);
+            }
+          }
+        });
+
+        btn.onclick = () => {
+          userRef.get().then(doc => {
+            const data = doc.data();
+            const today = getToday();
+            let spins = data.spinsToday || 0;
+            if (data.lastSpinDate !== today) {
+              spins = 0;
+              userRef.update({ lastSpinDate: today, spinsToday: 0 });
+            }
+
+            if (spins >= MAX_SPINS) {
+              msg.textContent = "আজকের স্পিন সীমা শেষ!";
+              return;
+            }
+
+            const reward = Math.floor(Math.random() * 16) + 5; // 5–20
+            const newCoins = (data.coins || 0) + reward;
+
+            spinSound.play();
+            msg.textContent = `অভিনন্দন! আপনি ${reward} কয়েন জিতেছেন।`;
+            spinLeft.innerText = MAX_SPINS - (spins + 1);
+
+            userRef.update({
+              coins: newCoins,
+              spinsToday: spins + 1,
+              lastSpinDate: today
+            });
+          });
+        };
+      } else {
+        auth.signInAnonymously();
+      }
+    });
+  </script>
+</body>
+</html>
