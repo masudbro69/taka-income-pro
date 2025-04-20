@@ -2,88 +2,131 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
+  <title>উইথড্র ফর্ম</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Withdraw - Taka Income Pro</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    .withdraw-box {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .withdraw-box h2 {
+      margin-bottom: 20px;
+      color: #333333;
+      font-size: 24px;
+    }
+
+    .withdraw-box label {
+      display: block;
+      margin: 10px 0 5px;
+      text-align: left;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .withdraw-box select,
+    .withdraw-box input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .withdraw-box button {
+      width: 100%;
+      padding: 12px;
+      background: #0072ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .withdraw-box button:hover {
+      background: #005bd1;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h2>উইথড্র রিকোয়েস্ট</h2>
-    <p>আপনার বর্তমান কয়েন: <span id="my-coins">লোড হচ্ছে...</span></p>
+  <div class="withdraw-box">
+    <h2>উইথড্র ফর্ম</h2>
+    <label for="method">মেথড নির্বাচন করুন:</label>
+    <select id="method">
+      <option value="bkash">বিকাশ</option>
+      <option value="nagad">নগদ</option>
+    </select>
 
-    <input type="text" id="bkash" placeholder="Bkash নম্বর লিখুন">
-    <input type="number" id="amount" placeholder="কত টাকা তুলতে চান?">
-    <button id="submit-btn">রিকোয়েস্ট পাঠান</button>
-    <p id="msg"></p>
+    <label for="number">নাম্বার লিখুন:</label>
+    <input type="text" id="number" placeholder="01XXXXXXXXX">
+
+    <label for="amount">উইথড্র এমাউন্ট:</label>
+    <input type="number" id="amount" placeholder="১০০+ টাকা">
+
+    <button onclick="submitWithdraw()">উইথড্র করুন</button>
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
     const firebaseConfig = {
-      apiKey: "AIzaSyAOlGcQIMpp_ItYWRmAA0jFZKNKM1eNgOY",
+      apiKey: "AIzaSyDts5_NDqvHpgZIBX-GzNij28UHoULr8_Y",
       authDomain: "taka-income-pro.firebaseapp.com",
       projectId: "taka-income-pro",
       storageBucket: "taka-income-pro.appspot.com",
-      messagingSenderId: "213383940361",
-      appId: "1:213383940361:web:cf958d4b17654d42cfd2d8"
+      messagingSenderId: "153366647999",
+      appId: "1:153366647999:web:fb63b29c2a2a9ce93b6b03"
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
 
-    let currentUserId = null;
-    let currentCoins = 0;
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        currentUserId = user.uid;
-        const userRef = db.collection("users").doc(user.uid);
-        userRef.get().then(doc => {
-          currentCoins = doc.data().coins || 0;
-          document.getElementById("my-coins").innerText = currentCoins;
-        });
-      } else {
-        auth.signInAnonymously();
-      }
-    });
-
-    document.getElementById("submit-btn").addEventListener("click", () => {
-      const bkash = document.getElementById("bkash").value.trim();
+    window.submitWithdraw = async () => {
+      const method = document.getElementById("method").value;
+      const number = document.getElementById("number").value.trim();
       const amount = parseInt(document.getElementById("amount").value.trim());
-      const msg = document.getElementById("msg");
 
-      if (!bkash || !amount) {
-        msg.innerText = "সব ফিল্ড পূরণ করুন।";
+      if (!number || !amount || isNaN(amount)) {
+        alert("অনুগ্রহ করে সব তথ্য সঠিকভাবে পূরণ করুন!");
         return;
       }
 
-      const requiredCoins = amount * 100; // 1 টাকা = 100 কয়েন
-      if (currentCoins < requiredCoins) {
-        msg.innerText = "পর্যাপ্ত কয়েন নেই।";
-        return;
-      }
-
-      db.collection("withdraw_requests").add({
-        uid: currentUserId,
-        bkash: bkash,
-        amount: amount,
-        coinsUsed: requiredCoins,
-        status: "pending",
-        date: new Date().toISOString()
-      }).then(() => {
-        db.collection("users").doc(currentUserId).update({
-          coins: currentCoins - requiredCoins
+      try {
+        await addDoc(collection(db, "withdraws"), {
+          method,
+          number,
+          amount,
+          status: "pending",
+          timestamp: serverTimestamp()
         });
-        msg.innerText = "রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে!";
-        document.getElementById("bkash").value = "";
+        alert("উইথড্র রিকুয়েস্ট সফলভাবে পাঠানো হয়েছে!");
+        document.getElementById("number").value = "";
         document.getElementById("amount").value = "";
-        document.getElementById("my-coins").innerText = currentCoins - requiredCoins;
-      });
-    });
+      } catch (error) {
+        alert("একটি সমস্যা হয়েছে: " + error.message);
+      }
+    };
   </script>
 </body>
 </html>
