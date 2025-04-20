@@ -1,127 +1,80 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quiz - Taka Income Pro</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>কুইজ খেলুন</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    .quiz-box {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 450px;
+      text-align: center;
+    }
+
+    .quiz-box h2 {
+      font-size: 22px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .option {
+      background: #f5576c;
+      color: white;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .option:hover {
+      background: #e84555;
+    }
+
+    .option.correct {
+      background: #4caf50 !important;
+    }
+
+    .option.wrong {
+      background: #e53935 !important;
+    }
+
+    #nextBtn {
+      margin-top: 20px;
+      display: none;
+      background: #333;
+    }
+
+    #coin {
+      margin-top: 10px;
+      color: green;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h2>আজকের কুইজ</h2>
-    <div id="quiz-box">
-      <p id="question"></p>
-      <div id="options"></div>
-      <button id="next-btn" disabled>পরবর্তী প্রশ্ন</button>
-      <p id="result"></p>
-    </div>
-    <audio id="correct-sound" src="assets/correct.mp3" preload="auto"></audio>
+  <div class="quiz-box">
+    <h2 id="question">লোড হচ্ছে...</h2>
+    <div id="options"></div>
+    <button class="option" id="nextBtn" onclick="loadNextQuestion()">পরবর্তী প্রশ্ন</button>
+    <div id="coin">আপনার কয়েন: <span id="coinCount">0</span></div>
   </div>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAOlGcQIMpp_ItYWRmAA0jFZKNKM1eNgOY",
-      authDomain: "taka-income-pro.firebaseapp.com",
-      projectId: "taka-income-pro",
-      storageBucket: "taka-income-pro.appspot.com",
-      messagingSenderId: "213383940361",
-      appId: "1:213383940361:web:cf958d4b17654d42cfd2d8"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    const questions = [
-      {
-        question: "বাংলাদেশের রাজধানী কোথায়?",
-        options: ["চট্টগ্রাম", "ঢাকা", "খুলনা", "রাজশাহী"],
-        answer: "ঢাকা"
-      },
-      {
-        question: "স্বাধীনতা দিবস কবে?",
-        options: ["২৬ মার্চ", "২১ ফেব্রুয়ারি", "১৬ ডিসেম্বর", "১ জানুয়ারি"],
-        answer: "২৬ মার্চ"
-      },
-      {
-        question: "বাংলাদেশের জাতীয় ফুল কী?",
-        options: ["গোলাপ", "শাপলা", "সুর্যমুখী", "জুঁই"],
-        answer: "শাপলা"
-      }
-    ];
-
-    let current = 0;
-    let coins = 0;
-    let currentUID = null;
-
-    const qEl = document.getElementById("question");
-    const optEl = document.getElementById("options");
-    const resEl = document.getElementById("result");
-    const nextBtn = document.getElementById("next-btn");
-    const sound = document.getElementById("correct-sound");
-
-    function showQuestion() {
-      const q = questions[current];
-      qEl.textContent = q.question;
-      optEl.innerHTML = "";
-      nextBtn.disabled = true;
-      resEl.textContent = "";
-
-      q.options.forEach(opt => {
-        const btn = document.createElement("button");
-        btn.textContent = opt;
-        btn.onclick = () => checkAnswer(opt);
-        optEl.appendChild(btn);
-      });
-    }
-
-    function checkAnswer(selected) {
-      const correct = questions[current].answer;
-      if (selected === correct) {
-        resEl.textContent = "সঠিক উত্তর! +10 কয়েন";
-        coins += 10;
-        sound.play();
-        nextBtn.disabled = false;
-      } else {
-        resEl.textContent = "ভুল উত্তর!";
-        nextBtn.disabled = false;
-      }
-    }
-
-    nextBtn.onclick = () => {
-      current++;
-      if (current < questions.length) {
-        showQuestion();
-      } else {
-        saveCoins();
-        qEl.textContent = "ধন্যবাদ! আপনি সব প্রশ্নের উত্তর দিয়েছেন।";
-        optEl.innerHTML = "";
-        nextBtn.style.display = "none";
-      }
-    };
-
-    function saveCoins() {
-      if (currentUID) {
-        const userRef = db.collection("users").doc(currentUID);
-        userRef.get().then(doc => {
-          const previous = doc.data().coins || 0;
-          userRef.update({ coins: previous + coins });
-        });
-      }
-    }
-
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        currentUID = user.uid;
-        showQuestion();
-      } else {
-        auth.signInAnonymously();
-      }
-    });
-  </script>
+  <script type="module" src="quiz.js"></script>
 </body>
 </html>
