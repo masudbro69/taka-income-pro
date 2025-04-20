@@ -1,81 +1,72 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Taka Income Pro</title>
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>স্বাগতম Taka Income Pro</h1>
-    <p id="coin-display">আপনার কয়েন: <span>0</span></p>
+  <!-- Page Title -->
+  <h1>Welcome to Taka Income Pro</h1>
 
-    <div class="nav-buttons">
-      <button onclick="location.href='quiz.html'">কুইজ</button>
-      <button onclick="location.href='spin.html'">স্পিন</button>
-      <button onclick="location.href='ads.html'">অ্যাড দেখুন</button>
-      <button onclick="location.href='daily.html'">ডেইলি বোনাস</button>
-      <button onclick="location.href='withdraw.html'">উইথড্র</button>
-      <button id="admin-btn" style="display:none;" onclick="location.href='admin.html'">অ্যাডমিন</button>
-    </div>
+  <!-- Coin Display -->
+  <p>Coins: <span id="coinSpan">0</span></p>
 
-    <audio id="click-sound" src="assets/click.mp3" preload="auto"></audio>
-  </div>
+  <!-- Sound effect when coin updates -->
+  <audio id="coinSound" src="coin.mp3" preload="auto"></audio>
 
-  <!-- Adsterra Popunder Script -->
-  <script type='text/javascript' src='//pl23138545.profitablegatecpm.com/94/5c/cf/945ccfc86a3bb72081a0ae821a688aa6.js'></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
-  <!-- Firebase Config + Logic -->
   <script>
+    // === Firebase Configuration (Replace with your own later) ===
     const firebaseConfig = {
-      apiKey: "AIzaSyAOlGcQIMpp_ItYWRmAA0jFZKNKM1eNgOY",
-      authDomain: "taka-income-pro.firebaseapp.com",
-      projectId: "taka-income-pro",
-      storageBucket: "taka-income-pro.appspot.com",
-      messagingSenderId: "213383940361",
-      appId: "1:213383940361:web:cf958d4b17654d42cfd2d8"
+      apiKey: "AIzaSyDw8b4YO-YkY-JJq3MZssVzIiv-Y1wVwXQ",
+      authDomain: "taka-income-demo.firebaseapp.com",
+      projectId: "taka-income-demo",
+      storageBucket: "taka-income-demo.appspot.com",
+      messagingSenderId: "1234567890",
+      appId: "1:1234567890:web:abcd1234efgh5678"
     };
+
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
+
+    // Shortcuts
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    const coinSpan = document.querySelector("#coin-display span");
-    const sound = document.getElementById("click-sound");
-    const adminBtn = document.getElementById("admin-btn");
+    // DOM Elements
+    const coinSpan = document.getElementById("coinSpan");
+    const sound = document.getElementById("coinSound");
 
-    auth.onAuthStateChanged(async (user) => {
+    // Auth State Observer
+    auth.onAuthStateChanged(async user => {
       if (user) {
-        const uid = user.uid;
-        const userRef = db.collection("users").doc(uid);
-
-        // Show admin panel if UID matches
-        if (uid === "3JZVxDCSzdZd6IlaUeL8xOCgZjf1") {
-          adminBtn.style.display = "block";
-        }
-
-        // Create user if not exists
+        const userRef = db.collection("users").doc(user.uid);
         const doc = await userRef.get();
+
+        // If user doesn't exist, create with 0 coins
         if (!doc.exists) {
           await userRef.set({ coins: 0 });
         }
 
-        // Real-time coin update
+        // Realtime listener for coin updates
         userRef.onSnapshot((doc) => {
-          const coins = doc.data().coins || 0;
+          const coins = doc.data().coins;
           coinSpan.innerText = coins;
-          sound.play();
+          sound.play(); // Play sound on update
         });
+
       } else {
+        // Anonymous Sign In
         auth.signInAnonymously();
       }
     });
   </script>
+
+  <!-- Adsterra Social Bar Ad -->
+  <script type="text/javascript" src="//pl26430918.profitableratecpm.com/eb/fc/e4/ebfce4c207953537986201bbf50217d3.js"></script>
 </body>
 </html>
