@@ -1,69 +1,53 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import { auth, db } from './firebase.js';
 import {
-  getFirestore, doc, getDoc, updateDoc, collection, addDoc
-} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
 import {
-  getAuth, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  doc, getDoc, updateDoc, collection, addDoc
+} from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
-const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "XXXXXXX",
-  appId: "XXXXXXX"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-let currentUser;
+let userId = null;
+let coins = 0;
 
 onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    currentUser = user;
-    const docSnap = await getDoc(doc(db, "users", user.uid));
-    if (docSnap.exists()) {
-      document.getElementById("coinCount").innerText = docSnap.data().coins || 0;
-    }
-  } else {
-    window.location.href = "login.html";
+  if (!user) return location.href = "login.html";
+  userId = user.uid;
+
+  const userRef = doc(db, "users", userId);
+  const userSnap = await getDoc(userRef);
+  if (userSnap.exists()) {
+    coins = userSnap.data().coins || 0;
+    document.getElementById("coinCount").innerText = coins;
   }
 });
 
-async function requestWithdraw() {
+window.requestWithdraw = async () => {
   const method = document.getElementById("method").value.trim();
   const number = document.getElementById("number").value.trim();
-  const statusEl = document.getElementById("status");
+  const status = document.getElementById("status");
 
-  if (!method || !number) {
-    statusEl.innerText = "সব তথ্য দিন।";
+  if (!method || !number || number.length < 6) {
+    status.innerText = "সঠিক তথ্য দিন।";
     return;
   }
 
-  const userRef = doc(db, "users", currentUser.uid);
-  const userSnap = await getDoc(userRef);
-  const coins = userSnap.data().coins || 0;
-
-  if (coins < 100) {
-    statusEl.innerText = "কমপক্ষে ১০০ কয়েন লাগবে!";
+  if (coins < 1000) {
+    status.innerText = "কমপক্ষে ১০০০ কয়েন লাগবে!";
     return;
   }
 
   await addDoc(collection(db, "withdrawRequests"), {
-    uid: currentUser.uid,
+    uid: userId,
     method,
     number,
     status: "pending",
     time: Date.now()
   });
 
-  await updateDoc(userRef, {
-    coins: coins - 100
+  await updateDoc(doc(db, "users", userId), {
+    coins: coins - 1000
   });
 
-  statusEl.innerText = "রিকোয়েস্ট পাঠানো হয়েছে!";
-  document.getElementById("coinCount").innerText = coins - 100;
-}
+  status.innerText = "রিকোয়েস্ট পাঠানো হয়েছে!";
+  document.getElementById("coinCount").innerText = coins - 1000;
+};
