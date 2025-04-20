@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ad View - Taka Income Pro</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>অ্যাড দেখুন, কয়েন জিতুন!</h2>
+    <div id="ads-area">
+      <!-- Adsterra, PropellerAds, etc. placeholder -->
+      <script type='text/javascript' src='//pl23138545.profitablegatecpm.com/945ccfc86a3bb72081a0ae821a688aa6.js'></script>
+    </div>
+
+    <p>সময় বাকি: <span id="timer">20</span> সেকেন্ড</p>
+    <button id="claim-btn" disabled>কয়েন ক্লেইম করুন</button>
+    <p id="result-msg"></p>
+    <audio id="reward-sound" src="assets/coin.mp3" preload="auto"></audio>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOlGcQIMpp_ItYWRmAA0jFZKNKM1eNgOY",
+      authDomain: "taka-income-pro.firebaseapp.com",
+      projectId: "taka-income-pro",
+      storageBucket: "taka-income-pro.appspot.com",
+      messagingSenderId: "213383940361",
+      appId: "1:213383940361:web:cf958d4b17654d42cfd2d8"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const timerSpan = document.getElementById("timer");
+    const claimBtn = document.getElementById("claim-btn");
+    const resultMsg = document.getElementById("result-msg");
+    const rewardSound = document.getElementById("reward-sound");
+
+    let uid = null;
+    let countdown = 20;
+    let rewardGiven = false;
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        uid = user.uid;
+        startTimer();
+      } else {
+        auth.signInAnonymously();
+      }
+    });
+
+    function startTimer() {
+      const interval = setInterval(() => {
+        countdown--;
+        timerSpan.textContent = countdown;
+
+        if (countdown <= 0) {
+          clearInterval(interval);
+          claimBtn.disabled = false;
+        }
+      }, 1000);
+    }
+
+    claimBtn.addEventListener("click", () => {
+      if (rewardGiven) return;
+
+      const coins = Math.floor(Math.random() * 11) + 5; // 5–15
+      const userRef = db.collection("users").doc(uid);
+
+      userRef.get().then(doc => {
+        const current = doc.data().coins || 0;
+        userRef.update({ coins: current + coins });
+        rewardSound.play();
+        resultMsg.textContent = `অভিনন্দন! আপনি ${coins} কয়েন পেয়েছেন।`;
+        rewardGiven = true;
+        claimBtn.disabled = true;
+      });
+    });
+  </script>
+</body>
+</html>
