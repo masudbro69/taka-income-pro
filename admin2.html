@@ -1,0 +1,22 @@
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+const adminUID = "3JZVxDCSzdZd6IlaUeL8xOCgZjf1"; // only this UID can access
+
+firebase.auth().onAuthStateChanged(user => {
+  if (!user || user.uid !== adminUID) {
+    alert("You are not authorized!");
+    window.location.href = "index.html";
+  }
+});
+
+function updateUserCoin() {
+  const uid = document.getElementById("user-id").value.trim();
+  const coins = parseInt(document.getElementById("coin-value").value);
+  if (!uid || isNaN(coins)) return;
+
+  db.collection("users").doc(uid).set({ coins: coins }, { merge: true })
+    .then(() => {
+      document.getElementById("status").innerText = "কয়েন আপডেট সফল!";
+    });
+}
