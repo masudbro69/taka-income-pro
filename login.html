@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <title>লগইন করুন</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #141e30, #243b55);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .login-box {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 350px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #00c9ff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      color: white;
+    }
+    button:hover {
+      background: #00aacc;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>লগইন করুন</h2>
+    <input type="email" id="email" placeholder="ইমেইল লিখুন" required />
+    <input type="password" id="password" placeholder="পাসওয়ার্ড লিখুন" required />
+    <button onclick="login()">লগইন</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDts5_NDqvHpgZIBX-GzNij28UHoULr8_Y",
+      authDomain: "taka-income-pro.firebaseapp.com",
+      projectId: "taka-income-pro",
+      storageBucket: "taka-income-pro.appspot.com",
+      messagingSenderId: "153366647999",
+      appId: "1:153366647999:web:fb63b29c2a2a9ce93b6b03"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.login = async () => {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!email || !password) {
+        alert("সব ঘর পূরণ করুন");
+        return;
+      }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        alert("লগইন সফল!");
+        window.location.href = "index.html"; // Redirect after successful login
+      } catch (error) {
+        alert("লগইন ব্যর্থ: " + error.message);
+      }
+    };
+  </script>
+</body>
+</html>
