@@ -31,12 +31,12 @@
 
   <script>
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyC...REPLACE_WITH_YOURS",
+      authDomain: "taka-income-pro.firebaseapp.com",
+      projectId: "taka-income-pro",
+      storageBucket: "taka-income-pro.appspot.com",
+      messagingSenderId: "1234567890",
+      appId: "1:1234567890:web:abcd1234"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -49,14 +49,15 @@
       if (user) {
         const uid = user.uid;
         const userDoc = db.collection("users").doc(uid);
-        
+
         userDoc.get().then(doc => {
           if (doc.exists) {
             coinDisplay.textContent = doc.data().coins || 0;
+          } else {
+            userDoc.set({ coins: 0 });
           }
         });
 
-        // Real-time updates
         userDoc.onSnapshot(doc => {
           if (doc.exists) {
             const coins = doc.data().coins || 0;
