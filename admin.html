@@ -1,25 +1,83 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Panel - Withdraw Requests</title>
-  <script type="module" src="admin-withdraw.js"></script>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>অ্যাডমিন প্যানেল</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js"></script>
+  <script src="firebase-config.js"></script>
 </head>
 <body>
-  <h2>Withdraw Request Panel</h2>
-  <table border="1" id="requestTable">
-    <thead>
-      <tr>
-        <th>User ID</th>
-        <th>Method</th>
-        <th>Number</th>
-        <th>Coins</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <h2>অ্যাডমিন কন্ট্রোল প্যানেল</h2>
+
+  <div id="admin-area" style="display:none;">
+    <button onclick="logout()">লগ আউট</button>
+
+    <h3>নতুন কুইজ যুক্ত করুন</h3>
+    <input id="question" placeholder="প্রশ্ন লিখুন">
+    <input id="option1" placeholder="অপশন ১">
+    <input id="option2" placeholder="অপশন ২">
+    <input id="option3" placeholder="অপশন ৩">
+    <input id="option4" placeholder="অপশন ৪">
+    <input id="answer" placeholder="সঠিক অপশন নাম্বার (1-4)">
+    <button onclick="addQuiz()">যুক্ত করুন</button>
+
+    <h3>কয়েন ম্যানেজ</h3>
+    <input id="uid" placeholder="ইউজার UID">
+    <input id="coin" type="number" placeholder="কয়েন সংখ্যা">
+    <button onclick="updateCoin('add')">Add</button>
+    <button onclick="updateCoin('remove')">Remove</button>
+  </div>
+
+  <script>
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const adminUID = "3JZVxDCSzdZd6IlaUeL8xOCgZjf1";
+
+    auth.onAuthStateChanged(user => {
+      if (user && user.uid === adminUID) {
+        document.getElementById('admin-area').style.display = 'block';
+      } else {
+        alert("You are not admin!");
+        window.location.href = "index.html";
+      }
+    });
+
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = "index.html";
+      });
+    }
+
+    function addQuiz() {
+      const data = {
+        question: question.value,
+        options: [option1.value, option2.value, option3.value, option4.value],
+        answer: parseInt(answer.value)
+      };
+      db.collection("quiz").add(data).then(() => {
+        alert("Quiz Added!");
+      });
+    }
+
+    function updateCoin(type) {
+      const userRef = db.collection("users").doc(uid.value);
+      userRef.get().then(doc => {
+        if (doc.exists) {
+          let current = doc.data().coin || 0;
+          let value = parseInt(coin.value);
+          let newCoin = type === 'add' ? current + value : Math.max(current - value, 0);
+          userRef.update({ coin: newCoin }).then(() => {
+            alert("Updated!");
+          });
+        } else {
+          alert("User not found.");
+        }
+      });
+    }
+  </script>
 </body>
 </html>
