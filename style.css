@@ -1,61 +1,50 @@
 /* style.css */
 
 body {
-  font-family: 'Segoe UI', sans-serif;
-  background: #f4f4f4;
-  color: #222;
-  padding: 20px;
+  margin: 0;
+  padding: 0;
+  font-family: 'Noto Sans Bengali', sans-serif;
+  background: #f3f3f3;
+  color: #333;
   text-align: center;
 }
 
-h1, h2 {
-  color: #333;
+.container {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 20px;
+  background: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  border-radius: 12px;
 }
 
-.user-panel, .container {
-  margin-top: 20px;
+h1 {
+  font-size: 24px;
+  margin-bottom: 10px;
 }
 
-button {
-  padding: 10px 20px;
-  margin: 5px;
-  border: none;
-  background: #007bff;
-  color: white;
+#coin-display {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.nav-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nav-buttons button {
+  padding: 12px;
   font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #0056b3;
-}
-
-input {
-  padding: 10px;
-  margin: 8px;
-  width: 80%;
-  max-width: 300px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-table {
-  margin: auto;
-  border-collapse: collapse;
-  width: 90%;
-}
-
-th, td {
-  padding: 10px;
-  border: 1px solid #ccc;
-}
-
-th {
-  background: #007bff;
+  background-color: #00b894;
   color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
-td {
-  background: #fff;
+.nav-buttons button:hover {
+  background-color: #019870;
 }
