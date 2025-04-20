@@ -2,19 +2,24 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Panel</title>
+  <title>Admin Panel - Withdraw Requests</title>
+  <script type="module" src="admin-withdraw.js"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>অ্যাডমিন প্যানেল</h1>
-  <input type="text" id="user-id" placeholder="User ID দিন">
-  <input type="number" id="coin-value" placeholder="কয়েন সংখ্যা">
-  <button onclick="updateUserCoin()">আপডেট কয়েন</button>
-  <p id="status"></p>
-
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="firebase-config.js"></script>
-  <script src="admin.js"></script>
+  <h2>Withdraw Request Panel</h2>
+  <table border="1" id="requestTable">
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>Method</th>
+        <th>Number</th>
+        <th>Coins</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </body>
 </html>
