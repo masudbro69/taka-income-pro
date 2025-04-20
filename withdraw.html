@@ -2,19 +2,88 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Withdraw - Taka Income Pro</title>
   <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <div class="container">
-    <h2>Withdraw Request</h2>
-    <p>আপনার কয়েন: <span id="coinCount">লোড হচ্ছে...</span></p>
-    <input type="text" id="method" placeholder="Bkash/Nagad/Rocket">
-    <input type="text" id="number" placeholder="Account Number">
-    <button onclick="requestWithdraw()">Request Withdraw</button>
-    <p id="status"></p>
+    <h2>উইথড্র রিকোয়েস্ট</h2>
+    <p>আপনার বর্তমান কয়েন: <span id="my-coins">লোড হচ্ছে...</span></p>
+
+    <input type="text" id="bkash" placeholder="Bkash নম্বর লিখুন">
+    <input type="number" id="amount" placeholder="কত টাকা তুলতে চান?">
+    <button id="submit-btn">রিকোয়েস্ট পাঠান</button>
+    <p id="msg"></p>
   </div>
 
-  <script type="module" src="withdraw.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOlGcQIMpp_ItYWRmAA0jFZKNKM1eNgOY",
+      authDomain: "taka-income-pro.firebaseapp.com",
+      projectId: "taka-income-pro",
+      storageBucket: "taka-income-pro.appspot.com",
+      messagingSenderId: "213383940361",
+      appId: "1:213383940361:web:cf958d4b17654d42cfd2d8"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUserId = null;
+    let currentCoins = 0;
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUserId = user.uid;
+        const userRef = db.collection("users").doc(user.uid);
+        userRef.get().then(doc => {
+          currentCoins = doc.data().coins || 0;
+          document.getElementById("my-coins").innerText = currentCoins;
+        });
+      } else {
+        auth.signInAnonymously();
+      }
+    });
+
+    document.getElementById("submit-btn").addEventListener("click", () => {
+      const bkash = document.getElementById("bkash").value.trim();
+      const amount = parseInt(document.getElementById("amount").value.trim());
+      const msg = document.getElementById("msg");
+
+      if (!bkash || !amount) {
+        msg.innerText = "সব ফিল্ড পূরণ করুন।";
+        return;
+      }
+
+      const requiredCoins = amount * 100; // 1 টাকা = 100 কয়েন
+      if (currentCoins < requiredCoins) {
+        msg.innerText = "পর্যাপ্ত কয়েন নেই।";
+        return;
+      }
+
+      db.collection("withdraw_requests").add({
+        uid: currentUserId,
+        bkash: bkash,
+        amount: amount,
+        coinsUsed: requiredCoins,
+        status: "pending",
+        date: new Date().toISOString()
+      }).then(() => {
+        db.collection("users").doc(currentUserId).update({
+          coins: currentCoins - requiredCoins
+        });
+        msg.innerText = "রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে!";
+        document.getElementById("bkash").value = "";
+        document.getElementById("amount").value = "";
+        document.getElementById("my-coins").innerText = currentCoins - requiredCoins;
+      });
+    });
+  </script>
 </body>
 </html>
