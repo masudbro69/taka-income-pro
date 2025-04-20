@@ -18,5 +18,18 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="firebase-config.js"></script>
   <script src="app.js"></script>
+<div id="quiz-section">
+  <h2>কুইজ</h2>
+  <p id="quiz-question"></p>
+  <div id="quiz-options"></div>
+  <button onclick="loadQuiz()">নতুন প্রশ্ন</button>
+</div>
+<div id="spin-section">
+  <h2>স্পিন</h2>
+  <div id="wheel" style="width: 200px; height: 200px; border: 5px solid #333; border-radius: 50%; margin: auto; background: conic-gradient(#4caf50 0deg 60deg, #f44336 60deg 120deg, #2196f3 120deg 180deg, #ff9800 180deg 240deg, #9c27b0 240deg 300deg, #00bcd4 300deg 360deg);">
+  </div>
+  <button onclick="spinWheel()">স্পিন করুন</button>
+  <p id="spin-result"></p>
+</div>
 </body>
 </html>
