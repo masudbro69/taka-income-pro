@@ -1,50 +1,56 @@
-/* style.css */
-
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Noto Sans Bengali', sans-serif;
-  background: #f3f3f3;
-  color: #333;
-  text-align: center;
-}
-
-.container {
-  max-width: 400px;
-  margin: 40px auto;
-  padding: 20px;
-  background: white;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  border-radius: 12px;
-}
-
-h1 {
+.glow-text {
   font-size: 24px;
-  margin-bottom: 10px;
-}
-
-#coin-display {
-  font-size: 18px;
+  color: #fff;
+  text-shadow: 0 0 10px #00f2ff, 0 0 20px #00d0ff, 0 0 30px #00b0ff;
   margin-bottom: 20px;
 }
 
-.nav-buttons {
+.wheel-wrapper {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  justify-content: center;
+  margin: 20px 0;
 }
 
-.nav-buttons button {
-  padding: 12px;
-  font-size: 16px;
-  background-color: #00b894;
+.spin-wheel {
+  width: 150px;
+  height: 150px;
+  background: conic-gradient(#00f2ff, #0072ff, #00f2ff);
+  border-radius: 50%;
+  line-height: 150px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 22px;
   color: white;
-  border: none;
-  border-radius: 8px;
   cursor: pointer;
-  transition: background 0.3s;
+  animation: pulse 2s infinite;
+  box-shadow: 0 0 30px rgba(0,0,0,0.5);
 }
 
-.nav-buttons button:hover {
-  background-color: #019870;
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.result-glow {
+  font-size: 18px;
+  margin: 15px 0;
+  color: #fff;
+  text-shadow: 0 0 10px #ffe600;
+}
+
+.btn-group .btn {
+  background: linear-gradient(90deg, #ff9800, #ffc107);
+  color: black;
+  border: none;
+  padding: 12px 25px;
+  margin-top: 15px;
+  font-size: 16px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn:hover {
+  background: linear-gradient(90deg, #ffc107, #ffeb3b);
 }
