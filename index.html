@@ -1,31 +1,73 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Taka Income Pro</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+
+  <!-- Adsterra Popunder -->
+  <script type='text/javascript' src='//pl23138545.profitablegatecpm.com/14/7e/15/147e158f0d2c1c7df48d0b56c5f8c356.js'></script>
 </head>
 <body>
   <div class="container">
     <h1>স্বাগতম Taka Income Pro</h1>
-    <p id="coin-display">আপনার কয়েন: <span id="coin-count">0</span></p>
+    <p id="coin-display">আপনার কয়েন: <span>0</span></p>
 
     <div class="nav-buttons">
-      <button onclick="location.href='quiz.html'">কুইজ খেলা</button>
-      <button onclick="location.href='spin.html'">স্পিন করুন</button>
-      <button onclick="location.href='watch.html'">ভিডিও দেখে আয়</button>
+      <button onclick="location.href='quiz.html'">কুইজ</button>
+      <button onclick="location.href='spin.html'">স্পিন</button>
       <button onclick="location.href='ads.html'">অ্যাড দেখুন</button>
       <button onclick="location.href='admin.html'">অ্যাডমিন প্যানেল</button>
     </div>
 
-    <audio id="click-sound" src="sounds/click.mp3" preload="auto"></audio>
+    <audio id="coin-sound" src="assets/coin.mp3" preload="auto"></audio>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const coinDisplay = document.querySelector("#coin-display span");
+    const sound = document.getElementById("coin-sound");
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        const uid = user.uid;
+        const userDoc = db.collection("users").doc(uid);
+        
+        userDoc.get().then(doc => {
+          if (doc.exists) {
+            coinDisplay.textContent = doc.data().coins || 0;
+          }
+        });
+
+        // Real-time updates
+        userDoc.onSnapshot(doc => {
+          if (doc.exists) {
+            const coins = doc.data().coins || 0;
+            coinDisplay.textContent = coins;
+            sound.play();
+          }
+        });
+      } else {
+        auth.signInAnonymously();
+      }
+    });
+  </script>
 </body>
 </html>
